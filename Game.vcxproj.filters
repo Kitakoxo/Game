@@ -1,0 +1,320 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="External">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="External\imgui-docking">
+      <UniqueIdentifier>{c85446c9-90d2-4441-add5-5aac511d95ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{9f64f4ff-d9e0-43d7-88e1-13e6d3656a89}</UniqueIdentifier>
+      <Extensions>hlsl;hlsli</Extensions>
+    </Filter>
+    <Filter Include="External\ImGuizmo">
+      <UniqueIdentifier>{5f7002dc-627e-48c5-9e59-33cef80467f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\01_重みのある衝突処理">
+      <UniqueIdentifier>{1b2970fe-51da-4b8e-a1ff-3dde86b2c578}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\00_モデルビューア">
+      <UniqueIdentifier>{97901063-2033-423d-b439-971a334fa448}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\02_レース順位判定処理">
+      <UniqueIdentifier>{78f7aef8-b204-4287-9681-086d83a9037e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\05_ルートモーション処理">
+      <UniqueIdentifier>{8a1d19bb-f7dd-4669-b8da-f068f624aa1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\10_2本のボーンIK制御">
+      <UniqueIdentifier>{6299fbba-e0b7-443e-b28d-f1b1617791ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\SphereCast">
+      <UniqueIdentifier>{abff1748-b50f-4e2e-b82c-9beee41e0b48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\03_スフィアキャストを用いた移動処理">
+      <UniqueIdentifier>{3f1de195-1acd-44c3-9d87-6a2d7847b60c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\04_剣の軌跡処理">
+      <UniqueIdentifier>{bf9bbd6a-d4ef-49a0-9236-30fa6113b29b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\06_コマンド判定処理">
+      <UniqueIdentifier>{4b5d0d24-f507-407b-9f3e-f4d95fa3a476}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\07_空間分割レイキャスト">
+      <UniqueIdentifier>{42350205-a9a4-49fe-88d2-e49418027f32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\08_ソート＆フィルタリング処理">
+      <UniqueIdentifier>{27212483-28ac-4c3f-b4d4-b65d2f43d40f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\09_ルックアット処理">
+      <UniqueIdentifier>{79134707-e175-4a24-aa60-e63b42bcd300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\11_球と三角形の衝突処理">
+      <UniqueIdentifier>{b8711069-5c05-4191-9992-e660d9efc921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\12_揺れもの処理%28ロープ%29">
+      <UniqueIdentifier>{f771e740-ae2a-4942-ad77-bef1999447c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\13_揺れもの処理%28ボーン%29">
+      <UniqueIdentifier>{2ebd1832-a271-4cc2-b303-2177fb6c8f35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\14_3本以上のボーンIK制御">
+      <UniqueIdentifier>{ad749d3e-07a4-42c2-a1e0-7537b8f30378}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="External\imgui-docking\imconfig.h">
+      <Filter>External\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui-docking\imgui.h">
+      <Filter>External\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui-docking\imgui_impl_dx11.h">
+      <Filter>External\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui-docking\imgui_impl_win32.h">
+      <Filter>External\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui-docking\imgui_internal.h">
+      <Filter>External\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui-docking\imstb_rectpack.h">
+      <Filter>External\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui-docking\imstb_textedit.h">
+      <Filter>External\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui-docking\imstb_truetype.h">
+      <Filter>External\imgui-docking</Filter>
+    </ClInclude>
+    <ClInclude Include="External\ImGuizmo\ImCurveEdit.h">
+      <Filter>External\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="External\ImGuizmo\ImGradient.h">
+      <Filter>External\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="External\ImGuizmo\ImGuizmo.h">
+      <Filter>External\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="External\ImGuizmo\ImSequencer.h">
+      <Filter>External\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="External\SphereCast\Include\SphereCast.h">
+      <Filter>External\SphereCast</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Audio\Audio.h" />
+    <ClInclude Include="Source\Audio\AudioResource.h" />
+    <ClInclude Include="Source\Audio\AudioSource.h" />
+    <ClInclude Include="Source\Camera\Base\Camera.h" />
+    <ClInclude Include="Source\Camera\Controllers\FreeCameraController.h" />
+    <ClInclude Include="Source\Core\Math\Misc.h" />
+    <ClInclude Include="Source\Core\Math\TransformUtils.h" />
+    <ClInclude Include="Source\Core\System\Framework.h" />
+    <ClInclude Include="Source\Core\System\HighResolutionTimer.h" />
+    <ClInclude Include="Source\Effect\Effect.h" />
+    <ClInclude Include="Source\Effect\EffectManager.h" />
+    <ClInclude Include="Source\Graphics\Pipeline\Graphics.h" />
+    <ClInclude Include="Source\Graphics\Pipeline\Light.h" />
+    <ClInclude Include="Source\Graphics\Pipeline\RenderContext.h" />
+    <ClInclude Include="Source\Graphics\Pipeline\RenderState.h" />
+    <ClInclude Include="Source\Graphics\Resource\DirectWriteCustomFont.h" />
+    <ClInclude Include="Source\Graphics\Resource\GpuResourceUtils.h" />
+    <ClInclude Include="Source\Graphics\Shader\BasicShader.h" />
+    <ClInclude Include="Source\Graphics\Shader\LambertShader.h" />
+    <ClInclude Include="Source\Graphics\Shader\Shader.h" />
+    <ClInclude Include="Source\Input\GamePad.h" />
+    <ClInclude Include="Source\Input\Input.h" />
+    <ClInclude Include="Source\Input\Mouse.h" />
+    <ClInclude Include="Source\Model\GLTFImporter.h" />
+    <ClInclude Include="Source\Model\Model.h" />
+    <ClInclude Include="Source\Renderer\Model\ModelRenderer.h" />
+    <ClInclude Include="Source\Renderer\Shape\PrimitiveRenderer.h" />
+    <ClInclude Include="Source\Renderer\Shape\ShapeRenderer.h" />
+    <ClInclude Include="Source\Renderer\Sprite\Sprite.h" />
+    <ClInclude Include="Source\Scene\Base\Scene.h" />
+    <ClInclude Include="Source\Scene\Debug\ModelViewerScene.h" />
+    <ClInclude Include="Source\UI\Dialog.h" />
+    <ClInclude Include="Source\UI\ImGui\ImGuiRenderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="External\imgui-docking\imgui.cpp">
+      <Filter>External\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui-docking\imgui_demo.cpp">
+      <Filter>External\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui-docking\imgui_draw.cpp">
+      <Filter>External\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui-docking\imgui_impl_dx11.cpp">
+      <Filter>External\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui-docking\imgui_impl_win32.cpp">
+      <Filter>External\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui-docking\imgui_widgets.cpp">
+      <Filter>External\imgui-docking</Filter>
+    </ClCompile>
+    <ClCompile Include="External\ImGuizmo\ImCurveEdit.cpp">
+      <Filter>External\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="External\ImGuizmo\ImGradient.cpp">
+      <Filter>External\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="External\ImGuizmo\ImGuizmo.cpp">
+      <Filter>External\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="External\ImGuizmo\ImSequencer.cpp">
+      <Filter>External\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\Audio.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\AudioResource.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Audio\AudioSource.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Camera\Base\Camera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Camera\Controllers\FreeCameraController.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Math\TransformUtils.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\System\Framework.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Effect\Effect.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Effect\EffectManager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Pipeline\Graphics.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Pipeline\RenderState.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Resource\DirectWriteCustomFont.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Resource\GpuResourceUtils.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Shader\BasicShader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Graphics\Shader\LambertShader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Input\GamePad.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Input\Input.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Input\Mouse.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\GLTFImporter.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Model\Model.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Model\ModelRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Shape\PrimitiveRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Shape\ShapeRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Sprite\Sprite.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Base\Scene.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Debug\ModelViewerScene.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\Dialog.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\UI\ImGui\ImGuiRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader\Sprite.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Shader\ShapeRenderer.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\Skinning.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\PrimitiveRenderer.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\Basic.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\Lambert.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\Scene.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\SpriteVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\SpritePS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\ShapeRendererVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\ShapeRendererPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PrimitiveRendererVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PrimitiveRendererPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\BasicPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\BasicVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\LambertPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\LambertVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
