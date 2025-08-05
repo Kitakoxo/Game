@@ -1,101 +1,128 @@
-#include <imgui_impl_win32.h>
-#include <imgui_impl_dx11.h>
-#include <ImGuizmo.h>
-#include "ImGuiRenderer.h"
+#include <imgui_impl_win32.h>        // ImGuiのWin32バックエンド
+#include <imgui_impl_dx11.h>        // ImGuiのDirectX11バックエンド
+#include <ImGuizmo.h>               // ギズモ描画用（トランスフォーム操作用）
+#include "ImGuiRenderer.h"          // 自作ImGuiラッパークラス
 
+// Win32 メッセージ処理のラッパー
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-// 初期化
+// ===========================
+// ImGui 初期化
+// ===========================
 void ImGuiRenderer::Initialize(HWND hWnd, ID3D11Device* device, ID3D11DeviceContext* dc)
 {
-	// Setup Dear ImGui context
+	// ImGuiコンテキストの作成
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-	//io.ConfigViewportsNoAutoMerge = true;
-	//io.ConfigViewportsNoTaskBarIcon = true;
-	//io.ConfigViewportsNoDefaultParent = true;
-	//io.ConfigDockingAlwaysTabBar = true;
-	//io.ConfigDockingTransparentPayload = true;
+	// 各種機能の有効化
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // キーボード操作を有効化
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // ゲームパッド操作（必要に応じて）
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // ドッキング（ウィンドウ合体）機能
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // 複数ウィンドウをOS上に表示
+
 #if 1
-	io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;     // FIXME-DPI: THIS CURRENTLY DOESN'T WORK AS EXPECTED. DON'T USE IN USER APP!
-	io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports; // FIXME-DPI
+	io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;     // DPIスケーリング（未安定）
+	io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports; // DPIスケーリング（未安定）
 #endif
 
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsClassic();
+	// -------------------------------
+	// スタイル設定（見た目の初期化）
+	// -------------------------------
+	ImGui::StyleColorsDark();  // 元のダークスタイルをベースにする
 
-	// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+	// カスタムスタイルの調整
 	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowRounding = 6.0f;                       // ウィンドウの角丸
+	style.FrameRounding = 4.0f;                        // ボタンなどの角丸
+	style.GrabRounding = 4.0f;                         // スライダーの丸み
+	style.ScrollbarRounding = 6.0f;                    // スクロールバーの角丸
+	style.FrameBorderSize = 1.0f;                      // ボーダー線を少し追加
+	style.WindowBorderSize = 1.0f;
+	style.IndentSpacing = 15.0f;                       // インデント間隔
+
+	// 色のカスタマイズ（一例）
+	ImVec4* colors = style.Colors;
+	colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.12f, 0.15f, 0.95f);  // ウィンドウ背景
+	colors[ImGuiCol_Header] = ImVec4(0.20f, 0.25f, 0.30f, 0.85f);  // ヘッダー背景
+	colors[ImGuiCol_HeaderHovered] = ImVec4(0.30f, 0.40f, 0.50f, 0.90f);  // ヘッダー・ホバー時
+	colors[ImGuiCol_HeaderActive] = ImVec4(0.35f, 0.45f, 0.55f, 1.00f);  // ヘッダー・アクティブ時
+	colors[ImGuiCol_Button] = ImVec4(0.20f, 0.25f, 0.30f, 0.85f);  // ボタン
+	colors[ImGuiCol_ButtonHovered] = ImVec4(0.30f, 0.40f, 0.50f, 0.90f);  // ボタン・ホバー
+	colors[ImGuiCol_ButtonActive] = ImVec4(0.35f, 0.45f, 0.55f, 1.00f);  // ボタン・クリック時
+	colors[ImGuiCol_FrameBg] = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);  // 入力欄・スライダー背景
+	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.20f, 0.25f, 0.30f, 1.00f);
+	colors[ImGuiCol_FrameBgActive] = ImVec4(0.25f, 0.30f, 0.35f, 1.00f);
+	colors[ImGuiCol_TitleBg] = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);  // タイトルバー背景
+	colors[ImGuiCol_TitleBgActive] = ImVec4(0.20f, 0.25f, 0.30f, 1.00f);
+
+	// Viewport 有効時の背景も合わせる
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
-		style.WindowRounding = 0.0f;
+		style.WindowRounding = 6.0f;
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 	}
 
-	// Setup Platform/Renderer backends
+
+	// -------------------------------
+	// バックエンド（Win32 + DX11）初期化
+	// -------------------------------
 	ImGui_ImplWin32_Init(hWnd);
 	ImGui_ImplDX11_Init(device, dc);
 
-	// Load Fonts
-	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-	// - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-	// - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-	// - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-	// - Read 'docs/FONTS.md' for more instructions and details.
-	// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-	//io.Fonts->AddFontDefault();
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-	ImFont* font = io.Fonts->AddFontFromFileTTF("Data/Font/ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-	IM_ASSERT(font != NULL);
+	// -------------------------------
+	// フォント読み込み（日本語対応）
+	// -------------------------------
+	ImFont* font = io.Fonts->AddFontFromFileTTF(
+		"Data/Font/ArialUni.ttf",         // 日本語対応フォントパス
+		18.0f,                             // フォントサイズ
+		nullptr,
+		io.Fonts->GetGlyphRangesJapanese() // 日本語グリフを対象に
+	);
+	IM_ASSERT(font != NULL); // フォント読み込み失敗時にAssert
 }
 
-// 終了化
+// ===========================
+// ImGui 終了処理
+// ===========================
 void ImGuiRenderer::Finalize()
 {
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	ImGui_ImplDX11_Shutdown();    // DX11バックエンド解放
+	ImGui_ImplWin32_Shutdown();   // Win32バックエンド解放
+	ImGui::DestroyContext();      // ImGuiコンテキスト破棄
 }
 
-// フレーム開始処理
+// ===========================
+// フレームの開始処理
+// ===========================
 void ImGuiRenderer::NewFrame()
 {
+	// バックエンドの新フレーム処理
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 
+	// ImGuiフレームの開始
 	ImGui::NewFrame();
 
+	// ImGuizmoの初期化（トランスフォーム操作用）
 	ImVec2 pos = ImGui::GetMainViewport()->GetWorkPos();
 	ImVec2 size = ImGui::GetIO().DisplaySize;
 	ImGuizmo::BeginFrame();
-	ImGuizmo::SetOrthographic(false);
-	ImGuizmo::SetRect(pos.x, pos.y, size.x, size.y);
+	ImGuizmo::SetOrthographic(false);         // 透視投影を使用
+	ImGuizmo::SetRect(pos.x, pos.y, size.x, size.y); // 描画範囲を設定
 
 #if 0
-	// Docking
-	const ImGuiWindowFlags window_flags = ImGuiWindowFlags_None
-		| ImGuiWindowFlags_NoTitleBar
-		| ImGuiWindowFlags_NoResize
-		| ImGuiWindowFlags_NoMove
-		| ImGuiWindowFlags_NoSavedSettings
-		| ImGuiWindowFlags_NoBringToFrontOnFocus
-		| ImGuiWindowFlags_NoNavFocus
-		| ImGuiWindowFlags_NoBackground
-		;
-	const ImGuiDockNodeFlags docspace_flags = ImGuiDockNodeFlags_None
-		//| ImGuiDockNodeFlags_KeepAliveOnly
-		| ImGuiDockNodeFlags_PassthruCentralNode
-		;
+	// ↓ ドッキングスペースを設置するサンプル（必要に応じて有効化）
+
+	const ImGuiWindowFlags window_flags =
+		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	const ImGuiDockNodeFlags docspace_flags =
+		ImGuiDockNodeFlags_PassthruCentralNode;
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->Pos);
@@ -108,8 +135,7 @@ void ImGuiRenderer::NewFrame()
 	bool dock_open = true;
 	if (ImGui::Begin("MainDockspace", &dock_open, window_flags))
 	{
-		ImGui::PopStyleVar(3);
-
+		ImGui::PopStyleVar(3); // StyleVarのリセット
 		ImGuiID dockspaceId = ImGui::GetID("MyDockspace");
 		ImGui::DockSpace(dockspaceId, ImVec2(0, 0), docspace_flags);
 	}
@@ -117,25 +143,31 @@ void ImGuiRenderer::NewFrame()
 #endif
 }
 
-// 描画
+// ===========================
+// ImGui描画の実行
+// ===========================
 void ImGuiRenderer::Render(ID3D11DeviceContext* context)
 {
-	// Rendering
+	// ImGuiによる描画コマンドの生成
 	ImGui::Render();
 
+	// DX11バックエンドに描画データを渡す
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-	// Update and Render additional Platform Windows
+	// マルチビューポートの描画（ウィンドウをOS上に分離）
 	ImGuiIO& io = ImGui::GetIO();
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
+		ImGui::UpdatePlatformWindows();         // サブウィンドウの更新
+		ImGui::RenderPlatformWindowsDefault();  // サブウィンドウの描画
 	}
 }
 
-// WIN32メッセージハンドラー
+// ===========================
+// Win32 メッセージ処理
+// ===========================
 LRESULT ImGuiRenderer::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	// ImGuiが使うイベントなら処理、そうでなければ次へ
 	return ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
 }

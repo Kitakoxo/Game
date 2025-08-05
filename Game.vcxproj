@@ -46,13 +46,13 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>Source\AI;Source\AI\BehaviorTree;Source\AI\StateMachine;Source\Audio;Source\Camera;Source\Camera\Base;Source\Camera\Controllers;Source\Core;Source\Core\Math;Source\Core\System;Source\Effect;Source\Entity;Source\Entity\Character;Source\Entity\Character\Enemy;Source\Entity\Character\Player;Source\Entity\Gimmick;Source\Entity\Item;Source\Entity\Projectile;Source\Entity\Stage;Source\Graphics;Source\Graphics\Pipeline;Source\Graphics\Resource;Source\Graphics\Shader;Source\Input;Source\Model;Source\Physics;Source\Physics\Collider;Source\Physics\Solver;Source\Renderer;Source\Renderer\Model;Source\Renderer\Shape;Source\Renderer\Sprite;Source\Scene;Source\Scene\Base;Source\Scene\Debug;Source\Scene\Flow;Source\Scene\Game;Source\Tools;Source\Tools\NodeEditor;Source\UI;Source\UI\ImGui;$(IncludePath)</IncludePath>
+    <IncludePath>Source\AI;Source\AI\BehaviorTree;Source\AI\StateMachine;Source\Audio;Source\Camera;Source\Camera\Base;Source\Camera\Controllers;Source\Core;Source\Core\Math;Source\Core\System;Source\Effect;Source\Entity;Source\Entity\Character;Source\Entity\Character\Enemy;Source\Entity\Character\Player;Source\Entity\Gimmick;Source\Entity\Item;Source\Entity\Projectile;Source\Entity\Stage;Source\Graphics;Source\Graphics\Pipeline;Source\Graphics\Resource;Source\Graphics\Shader;Source\Input;Source\Model;Source\Physics;Source\Physics\Collider;Source\Physics\Solver;Source\Renderer;Source\Renderer\Model;Source\Renderer\Shape;Source\Renderer\Sprite;Source\Scene;Source\Scene\Base;Source\Scene\Flow;Source\Scene\Game;Source\Scene\Test;Source\Tools;Source\Tools\NodeEditor;Source\UI;Source\UI\ImGui;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>Source\AI;Source\AI\BehaviorTree;Source\AI\StateMachine;Source\Audio;Source\Camera;Source\Camera\Base;Source\Camera\Controllers;Source\Core;Source\Core\Math;Source\Core\System;Source\Effect;Source\Entity;Source\Entity\Character;Source\Entity\Character\Enemy;Source\Entity\Character\Player;Source\Entity\Gimmick;Source\Entity\Item;Source\Entity\Projectile;Source\Entity\Stage;Source\Graphics;Source\Graphics\Pipeline;Source\Graphics\Resource;Source\Graphics\Shader;Source\Input;Source\Model;Source\Physics;Source\Physics\Collider;Source\Physics\Solver;Source\Renderer;Source\Renderer\Model;Source\Renderer\Shape;Source\Renderer\Sprite;Source\Scene;Source\Scene\Base;Source\Scene\Debug;Source\Scene\Flow;Source\Scene\Game;Source\Tools;Source\Tools\NodeEditor;Source\UI;Source\UI\ImGui;$(IncludePath)</IncludePath>
+    <IncludePath>Source\AI;Source\AI\BehaviorTree;Source\AI\StateMachine;Source\Audio;Source\Camera;Source\Camera\Base;Source\Camera\Controllers;Source\Core;Source\Core\Math;Source\Core\System;Source\Effect;Source\Entity;Source\Entity\Character;Source\Entity\Character\Enemy;Source\Entity\Character\Player;Source\Entity\Gimmick;Source\Entity\Item;Source\Entity\Projectile;Source\Entity\Stage;Source\Graphics;Source\Graphics\Pipeline;Source\Graphics\Resource;Source\Graphics\Shader;Source\Input;Source\Model;Source\Physics;Source\Physics\Collider;Source\Physics\Solver;Source\Renderer;Source\Renderer\Model;Source\Renderer\Shape;Source\Renderer\Sprite;Source\Scene;Source\Scene\Base;Source\Scene\Flow;Source\Scene\Game;Source\Scene\Test;Source\Tools;Source\Tools\NodeEditor;Source\UI;Source\UI\ImGui;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -156,7 +156,7 @@
     <ClInclude Include="Source\Renderer\Shape\ShapeRenderer.h" />
     <ClInclude Include="Source\Renderer\Sprite\Sprite.h" />
     <ClInclude Include="Source\Scene\Base\Scene.h" />
-    <ClInclude Include="Source\Scene\Debug\ModelViewerScene.h" />
+    <ClInclude Include="Source\Scene\Test\ModelViewerScene.h" />
     <ClInclude Include="Source\UI\Dialog.h" />
     <ClInclude Include="Source\UI\ImGui\ImGuiRenderer.h" />
   </ItemGroup>
@@ -197,7 +197,7 @@
     <ClCompile Include="Source\Renderer\Shape\ShapeRenderer.cpp" />
     <ClCompile Include="Source\Renderer\Sprite\Sprite.cpp" />
     <ClCompile Include="Source\Scene\Base\Scene.cpp" />
-    <ClCompile Include="Source\Scene\Debug\ModelViewerScene.cpp" />
+    <ClCompile Include="Source\Scene\Test\ModelViewerScene.cpp" />
     <ClCompile Include="Source\UI\Dialog.cpp" />
     <ClCompile Include="Source\UI\ImGui\ImGuiRenderer.cpp" />
   </ItemGroup>

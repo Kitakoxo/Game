@@ -138,9 +138,9 @@
     <ClInclude Include="Source\Renderer\Shape\ShapeRenderer.h" />
     <ClInclude Include="Source\Renderer\Sprite\Sprite.h" />
     <ClInclude Include="Source\Scene\Base\Scene.h" />
-    <ClInclude Include="Source\Scene\Debug\ModelViewerScene.h" />
     <ClInclude Include="Source\UI\Dialog.h" />
     <ClInclude Include="Source\UI\ImGui\ImGuiRenderer.h" />
+    <ClInclude Include="Source\Scene\Test\ModelViewerScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\imgui-docking\imgui.cpp">
@@ -248,9 +248,6 @@
     <ClCompile Include="Source\Scene\Base\Scene.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Scene\Debug\ModelViewerScene.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Source\UI\Dialog.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -258,6 +255,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Source\Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene\Test\ModelViewerScene.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
