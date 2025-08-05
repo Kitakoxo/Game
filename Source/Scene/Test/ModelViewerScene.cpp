@@ -1,56 +1,102 @@
-#include <functional>
+ï»¿#include <functional>
 #include <imgui.h>
 #include "ModelViewerScene.h"
 #include "Graphics.h"
 #include "TransformUtils.h"
 #include "Dialog.h"
 
-// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+// ãƒœãƒ¼ãƒ³è¨ˆç®—ç”¨é–¢æ•°
+namespace
+{
+	// ãƒœãƒ¼ãƒ³ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã‚’è¨ˆç®—
+	void ComputeBoneWorld(Model::Node* node, const DirectX::XMMATRIX& parent)
+	{
+		using namespace DirectX;
+		XMMATRIX S = XMMatrixScaling(node->scale.x, node->scale.y, node->scale.z);
+		XMMATRIX R = XMMatrixRotationQuaternion(XMLoadFloat4(&node->rotation));
+		XMMATRIX T = XMMatrixTranslation(node->position.x, node->position.y, node->position.z);
+		XMMATRIX local = S * R * T;
+		XMMATRIX world = local * parent;
+		XMStoreFloat4x4(&node->worldTransform, world);
+		for (Model::Node* child : node->children)
+		{
+			ComputeBoneWorld(child, world);
+		}
+	}
+
+	// ãƒœãƒ¼ãƒ³æç”»
+	void DrawBone(Model::Node* node, PrimitiveRenderer* primitiveRenderer, ShapeRenderer* shapeRenderer, Model::Node* selection)
+	{
+		using namespace DirectX;
+		XMMATRIX world = XMLoadFloat4x4(&node->worldTransform);
+		XMFLOAT3 pos;
+		XMStoreFloat3(&pos, world.r[3]);
+		bool selected = (node == selection);
+		bool usingGizmo = selected && ImGuizmo::IsUsing();
+		float radius = usingGizmo ? 0.05f : (selected ? 0.03f : 0.02f);
+		XMFLOAT4 color = usingGizmo ? XMFLOAT4{ 1,1,0,1 } : (selected ? XMFLOAT4{ 1,0,0,1 } : XMFLOAT4{ 1,1,1,1 });
+		shapeRenderer->DrawSphere(pos, radius, color);
+		if (node->parent != nullptr)
+		{
+			XMFLOAT3 parentPos;
+			XMMATRIX parentW = XMLoadFloat4x4(&node->parent->worldTransform);
+			XMStoreFloat3(&parentPos, parentW.r[3]);
+			primitiveRenderer->AddVertex(parentPos, color);
+			primitiveRenderer->AddVertex(pos, color);
+		}
+		for (Model::Node* child : node->children)
+		{
+			DrawBone(child, primitiveRenderer, shapeRenderer, selection);
+		}
+	}
+}
+
+// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 ModelViewerScene::ModelViewerScene()
 {
 	ID3D11Device* device = Graphics::Instance().GetDevice();
 	float screenWidth = Graphics::Instance().GetScreenWidth();
 	float screenHeight = Graphics::Instance().GetScreenHeight();
 
-	// ƒJƒƒ‰İ’è
+	// ã‚«ãƒ¡ãƒ©è¨­å®š
 	camera.SetPerspectiveFov(
-		DirectX::XMConvertToRadians(45),	// ‰æŠp
-		screenWidth / screenHeight,			// ‰æ–ÊƒAƒXƒyƒNƒg”ä
-		0.1f,								// ƒjƒAƒNƒŠƒbƒv
-		1000.0f								// ƒtƒ@[ƒNƒŠƒbƒv
+		DirectX::XMConvertToRadians(45),	// ç”»è§’
+		screenWidth / screenHeight,			// ç”»é¢ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯”
+		0.1f,								// ãƒ‹ã‚¢ã‚¯ãƒªãƒƒãƒ—
+		1000.0f								// ãƒ•ã‚¡ãƒ¼ã‚¯ãƒªãƒƒãƒ—
 	);
 	camera.SetLookAt(
-		{ 0, 3, 5 },		// ‹“_
-		{ 0, 0, 0 },		// ’‹“_
-		{ 0, 1, 0 }			// ãƒxƒNƒgƒ‹
+		{ 0, 3, 5 },		// è¦–ç‚¹
+		{ 0, 0, 0 },		// æ³¨è¦–ç‚¹
+		{ 0, 1, 0 }			// ä¸Šãƒ™ã‚¯ãƒˆãƒ«
 	);
 	cameraController.SyncCameraToController(camera);
 
 	shaderId = static_cast<int>(ShaderId::Basic);
 
-	// ƒ‰ƒCƒgİ’è
+	// ãƒ©ã‚¤ãƒˆè¨­å®š
 	DirectionalLight directionalLight;
 	directionalLight.direction = { 0, -1, -1 };
 	directionalLight.color = { 1, 1, 1 };
 	lightManager.SetDirectionalLight(directionalLight);
 }
 
-// XVˆ—
+// æ›´æ–°å‡¦ç†
 void ModelViewerScene::Update(float elapsedTime)
 {
-	// ƒJƒƒ‰XVˆ—
+	// ã‚«ãƒ¡ãƒ©æ›´æ–°å‡¦ç†
 	cameraController.Update();
 	cameraController.SyncControllerToCamera(camera);
 
 	if (model != nullptr)
 	{
-		// ƒAƒjƒ[ƒVƒ‡ƒ“XV
+		// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æ›´æ–°
 		if (animationPlaying && currentAnimationIndex >= 0)
 		{
 			model->ComputeAnimation(currentAnimationIndex, currentAnimationSeconds, nodePoses);
 			model->SetNodePoses(nodePoses);
 
-			// ŠÔXV
+			// æ™‚é–“æ›´æ–°
 			const Model::Animation& animation = model->GetAnimations().at(currentAnimationIndex);
 			currentAnimationSeconds += elapsedTime * animationSpeed;
 			if (currentAnimationSeconds > animation.secondsLength)
@@ -66,7 +112,7 @@ void ModelViewerScene::Update(float elapsedTime)
 			}
 		}
 
-		// ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€XV
+		// ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ æ›´æ–°
 		DirectX::XMFLOAT4X4 worldTransform;
 		DirectX::XMStoreFloat4x4(&worldTransform, DirectX::XMMatrixIdentity());
 		model->UpdateTransform(worldTransform);
@@ -74,38 +120,75 @@ void ModelViewerScene::Update(float elapsedTime)
 
 }
 
-// •`‰æˆ—
+// æç”»å‡¦ç†
 void ModelViewerScene::Render(float elapsedTime)
 {
 	ID3D11DeviceContext* dc = Graphics::Instance().GetDeviceContext();
 	RenderState* renderState = Graphics::Instance().GetRenderState();
 	PrimitiveRenderer* primitiveRenderer = Graphics::Instance().GetPrimitiveRenderer();
 	ModelRenderer* modelRenderer = Graphics::Instance().GetModelRenderer();
+	ShapeRenderer* shapeRenderer = Graphics::Instance().GetShapeRenderer();
 
-	// ƒOƒŠƒbƒh•`‰æ
+	// ã‚®ã‚ºãƒ¢æ“ä½œåˆ‡ã‚Šæ›¿ãˆ
+	if (ImGui::IsKeyPressed('Q')) { gizmoEnable = false; }
+	if (ImGui::IsKeyPressed('W')) { gizmoEnable = true; gizmoOperation = ImGuizmo::TRANSLATE; }
+	if (ImGui::IsKeyPressed('E')) { gizmoEnable = true; gizmoOperation = ImGuizmo::ROTATE; }
+	if (ImGui::IsKeyPressed('R')) { gizmoEnable = true; gizmoOperation = ImGuizmo::SCALE; }
+
+	// ã‚°ãƒªãƒƒãƒ‰æç”»
 	primitiveRenderer->DrawGrid(20, 1);
 	primitiveRenderer->Render(dc, camera.GetView(), camera.GetProjection(), D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	// •`‰æƒRƒ“ƒeƒLƒXƒgİ’è
+	// æç”»ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆè¨­å®š
 	RenderContext rc;
 	rc.deviceContext = dc;
 	rc.renderState = renderState;
 	rc.camera = &camera;
 	rc.lightManager = &lightManager;
 
-	// •`‰æ
+	// æç”»
 	if (model != nullptr)
 	{
-		// ƒ‚ƒfƒ‹•`‰æ
+		// ãƒœãƒ¼ãƒ³è¡Œåˆ—è¨ˆç®—
+		ComputeBoneWorld(model->GetRootNode(), DirectX::XMMatrixIdentity());
+
+		// ã‚®ã‚ºãƒ¢æ“ä½œ
+		if (gizmoEnable && selectionNode != nullptr)
+		{
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+			ImVec2 pos = ImGui::GetMainViewport()->Pos;
+			ImVec2 size = ImGui::GetMainViewport()->Size;
+			ImGuizmo::SetRect(pos.x, pos.y, size.x, size.y);
+			DirectX::XMFLOAT4X4 view = camera.GetView();
+			DirectX::XMFLOAT4X4 projection = camera.GetProjection();
+			ImGuizmo::Manipulate(reinterpret_cast<float*>(&view), reinterpret_cast<float*>(&projection), gizmoOperation, ImGuizmo::LOCAL, reinterpret_cast<float*>(&selectionNode->worldTransform));
+			if (ImGuizmo::IsUsing())
+			{
+				DirectX::XMMATRIX world = DirectX::XMLoadFloat4x4(&selectionNode->worldTransform);
+				DirectX::XMMATRIX parentWorld = selectionNode->parent ? DirectX::XMLoadFloat4x4(&selectionNode->parent->worldTransform) : DirectX::XMMatrixIdentity();
+				DirectX::XMMATRIX local = world * DirectX::XMMatrixInverse(nullptr, parentWorld);
+				DirectX::XMVECTOR s, r, t;
+				DirectX::XMMatrixDecompose(&s, &r, &t, local);
+				DirectX::XMStoreFloat3(&selectionNode->scale, s);
+				DirectX::XMStoreFloat4(&selectionNode->rotation, r);
+				DirectX::XMStoreFloat3(&selectionNode->position, t);
+				DirectX::XMStoreFloat4x4(&selectionNode->localTransform, local);
+			}
+			// å†è¨ˆç®—
+			ComputeBoneWorld(model->GetRootNode(), DirectX::XMMatrixIdentity());
+		}
+
+		// ãƒ¢ãƒ‡ãƒ«æç”»
 		modelRenderer->Draw(static_cast<ShaderId>(shaderId), model);
 		modelRenderer->Render(rc);
 
-		// ƒŒƒ“ƒ_[ƒXƒe[ƒgİ’è
+		// ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¹ãƒ†ãƒ¼ãƒˆè¨­å®š
 		dc->OMSetBlendState(renderState->GetBlendState(BlendState::Opaque), nullptr, 0xFFFFFFFF);
 		dc->OMSetDepthStencilState(renderState->GetDepthStencilState(DepthState::NoTestNoWrite), 0);
 		dc->RSSetState(renderState->GetRasterizerState(RasterizerState::SolidCullNone));
 
-		// ²•`‰æ
+		// è»¸æç”»
 		const std::vector<Model::Node>& nodes = model->GetNodes();
 		if (selectionNode != nullptr)
 		{
@@ -126,32 +209,38 @@ void ModelViewerScene::Render(float elapsedTime)
 			primitiveRenderer->AddVertex(p, { 0, 0, 1, 1 });
 			primitiveRenderer->AddVertex(z, { 0, 0, 1, 1 });
 		}
+		// ãƒœãƒ¼ãƒ³æç”»
+		DrawBone(model->GetRootNode(), primitiveRenderer, shapeRenderer, selectionNode);
+		shapeRenderer->Render(dc, camera.GetView(), camera.GetProjection());
 		primitiveRenderer->Render(dc, camera.GetView(), camera.GetProjection(), D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
 	}
 }
 
-// GUI•`‰æˆ—
+// GUIæç”»å‡¦ç†
 void ModelViewerScene::DrawGUI()
 {
 	DrawMenuGUI();
-	DrawHierarchyGUI();
-	DrawPropertyGUI();
-	DrawAnimationGUI();
-	DrawMaterialGUI();
+	if (model != nullptr)
+	{
+		DrawHierarchyGUI();
+		DrawPropertyGUI();
+		DrawAnimationGUI();
+		DrawMaterialGUI();
+	}
 }
 
-// ƒƒjƒ…[GUI•`‰æ
+// ãƒ¡ãƒ‹ãƒ¥ãƒ¼GUIæç”»
 void ModelViewerScene::DrawMenuGUI()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
-		// ƒtƒ@ƒCƒ‹ƒƒjƒ…[
+		// ãƒ•ã‚¡ã‚¤ãƒ«ãƒ¡ãƒ‹ãƒ¥ãƒ¼
 		if (ImGui::BeginMenu("File"))
 		{
 			bool check = false;
 			if (ImGui::MenuItem("Open Model", "", &check))
 			{
-				static const char* filter = "Model Files(*.gltf;*.glb)\0*.gltf;*.glb;\0All Files(*.*)\0*.*;\0\0";
+				static const char* filter = "Model Files(*.gltf;*.glb)Â¥0*.gltf;*.glb;Â¥0All Files(*.*)Â¥0*.*;Â¥0Â¥0";
 
 				char filename[256] = { 0 };
 				HWND hWnd = Graphics::Instance().GetWindowHandle();
@@ -174,7 +263,7 @@ void ModelViewerScene::DrawMenuGUI()
 	}
 }
 
-// ƒqƒGƒ‰ƒ‹ƒL[GUI•`‰æ
+// ãƒ’ã‚¨ãƒ©ãƒ«ã‚­ãƒ¼GUIæç”»
 void ModelViewerScene::DrawHierarchyGUI()
 {
 	ImVec2 pos = ImGui::GetMainViewport()->GetWorkPos();
@@ -183,36 +272,36 @@ void ModelViewerScene::DrawHierarchyGUI()
 
 	if (ImGui::Begin("Hierarchy", nullptr, ImGuiWindowFlags_None))
 	{
-		// ƒm[ƒhƒcƒŠ[‚ğÄ‹A“I‚É•`‰æ‚·‚éŠÖ”
+		// ãƒãƒ¼ãƒ‰ãƒ„ãƒªãƒ¼ã‚’å†å¸°çš„ã«æç”»ã™ã‚‹é–¢æ•°
 		std::function<void(Model::Node*)> drawNodeTree = [&](Model::Node* node)
 			{
-				// –îˆó‚ğƒNƒŠƒbƒNA‚Ü‚½‚Íƒm[ƒh‚ğƒ_ƒuƒ‹ƒNƒŠƒbƒN‚ÅŠK‘w‚ğŠJ‚­
+				// çŸ¢å°ã‚’ã‚¯ãƒªãƒƒã‚¯ã€ã¾ãŸã¯ãƒãƒ¼ãƒ‰ã‚’ãƒ€ãƒ–ãƒ«ã‚¯ãƒªãƒƒã‚¯ã§éšå±¤ã‚’é–‹ã
 				ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
 					| ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-				// q‚ª‚¢‚È‚¢ê‡‚Í–îˆó‚ğ‚Â‚¯‚È‚¢
+				// å­ãŒã„ãªã„å ´åˆã¯çŸ¢å°ã‚’ã¤ã‘ãªã„
 				size_t childCount = node->children.size();
 				if (childCount == 0)
 				{
 					nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 				}
 
-				// ‘I‘ğƒtƒ‰ƒO
+				// é¸æŠãƒ•ãƒ©ã‚°
 				if (selectionNode == node)
 				{
 					nodeFlags |= ImGuiTreeNodeFlags_Selected;
 				}
 
-				// ƒcƒŠ[ƒm[ƒh‚ğ•\¦
+				// ãƒ„ãƒªãƒ¼ãƒãƒ¼ãƒ‰ã‚’è¡¨ç¤º
 				bool opened = ImGui::TreeNodeEx(node, nodeFlags, node->name.c_str());
 
-				// ƒtƒH[ƒJƒX‚³‚ê‚½ƒm[ƒh‚ğ‘I‘ğ‚·‚é
+				// ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã•ã‚ŒãŸãƒãƒ¼ãƒ‰ã‚’é¸æŠã™ã‚‹
 				if (ImGui::IsItemFocused())
 				{
 					selectionNode = node;
 				}
 
-				// ŠJ‚©‚ê‚Ä‚¢‚éê‡AqŠK‘w‚à“¯‚¶ˆ—‚ğs‚¤
+				// é–‹ã‹ã‚Œã¦ã„ã‚‹å ´åˆã€å­éšå±¤ã‚‚åŒã˜å‡¦ç†ã‚’è¡Œã†
 				if (opened && childCount > 0)
 				{
 					for (Model::Node* child : node->children)
@@ -222,7 +311,7 @@ void ModelViewerScene::DrawHierarchyGUI()
 					ImGui::TreePop();
 				}
 			};
-		// Ä‹A“I‚Éƒm[ƒh‚ğ•`‰æ
+		// å†å¸°çš„ã«ãƒãƒ¼ãƒ‰ã‚’æç”»
 		if (model != nullptr)
 		{
 			drawNodeTree(model->GetRootNode());
@@ -231,7 +320,7 @@ void ModelViewerScene::DrawHierarchyGUI()
 	ImGui::End();
 }
 
-// ƒvƒƒpƒeƒBGUI•`‰æ
+// ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£GUIæç”»
 void ModelViewerScene::DrawPropertyGUI()
 {
 	ImVec2 pos = ImGui::GetMainViewport()->GetWorkPos();
@@ -244,12 +333,12 @@ void ModelViewerScene::DrawPropertyGUI()
 		{
 			if (ImGui::CollapsingHeader("Node", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				// ˆÊ’u
+				// ä½ç½®
 				if (ImGui::DragFloat3("Local Position", &selectionNode->position.x, 0.1f))
 				{
 					animationPlaying = false;
 				}
-				// ˆÊ’u
+				// ä½ç½®
 				DirectX::XMFLOAT3 globalPosition =
 				{
 					selectionNode->globalTransform._41,
@@ -273,7 +362,7 @@ void ModelViewerScene::DrawPropertyGUI()
 					animationPlaying = false;
 				}
 
-				// ‰ñ“]
+				// å›è»¢
 				DirectX::XMFLOAT3 angle;
 				TransformUtils::QuaternionToRollPitchYaw(selectionNode->rotation, angle.x, angle.y, angle.z);
 				angle.x = DirectX::XMConvertToDegrees(angle.x);
@@ -317,7 +406,7 @@ void ModelViewerScene::DrawPropertyGUI()
 					animationPlaying = false;
 				}
 
-				// ƒXƒP[ƒ‹
+				// ã‚¹ã‚±ãƒ¼ãƒ«
 				if (ImGui::DragFloat3("Local Scale", &selectionNode->scale.x, 0.01f))
 				{
 					animationPlaying = false;
@@ -341,7 +430,7 @@ void ModelViewerScene::DrawPropertyGUI()
 	ImGui::End();
 }
 
-// ƒAƒjƒ[ƒVƒ‡ƒ“GUI•`‰æ
+// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³GUIæç”»
 void ModelViewerScene::DrawAnimationGUI()
 {
 	ImVec2 pos = ImGui::GetMainViewport()->GetWorkPos();
@@ -362,7 +451,7 @@ void ModelViewerScene::DrawAnimationGUI()
 			int frameLength = static_cast<int>(secondsLength * 60);
 
 			ImGui::SetNextItemWidth(50);
-			ImGui::PushID(u8"ƒtƒŒ[ƒ€");
+			ImGui::PushID(u8"ãƒ•ãƒ¬ãƒ¼ãƒ ");
 			if (ImGui::DragInt("##v", &currentFrame, 1, 0, frameLength))
 			{
 				animationPlaying = true;
@@ -373,7 +462,7 @@ void ModelViewerScene::DrawAnimationGUI()
 
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::PushID(u8"ƒ^ƒCƒ€ƒ‰ƒCƒ“");
+			ImGui::PushID(u8"ã‚¿ã‚¤ãƒ ãƒ©ã‚¤ãƒ³");
 			if (ImGui::SliderFloat("##v", &currentAnimationSeconds, 0, secondsLength, "%.3f"))
 			{
 				animationPlaying = true;
@@ -388,7 +477,7 @@ void ModelViewerScene::DrawAnimationGUI()
 
 				ImGui::TreeNodeEx(&animation, nodeFlags, animation.name.c_str());
 
-				// ƒ_ƒuƒ‹ƒNƒŠƒbƒN‚ÅƒAƒjƒ[ƒVƒ‡ƒ“Ä¶
+				// ãƒ€ãƒ–ãƒ«ã‚¯ãƒªãƒƒã‚¯ã§ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿ
 				if (ImGui::IsItemClicked())
 				{
 					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -410,7 +499,7 @@ void ModelViewerScene::DrawAnimationGUI()
 	ImGui::End();
 }
 
-// ƒ}ƒeƒŠƒAƒ‹GUI•`‰æ
+// ãƒãƒ†ãƒªã‚¢ãƒ«GUIæç”»
 void ModelViewerScene::DrawMaterialGUI()
 {
 	ImVec2 pos = ImGui::GetMainViewport()->GetWorkPos();

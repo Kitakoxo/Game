@@ -6,6 +6,7 @@
 #include "FreeCameraController.h"
 #include "Model.h"
 #include "Light.h"
+#include <ImGuizmo.h>
 
 // モデルビューアシーン
 class ModelViewerScene : public Scene
@@ -54,4 +55,6 @@ private:
 	float								currentAnimationSeconds = 0;
 	int									currentAnimationIndex = -1;
 	int									shaderId;
+	ImGuizmo::OPERATION	gizmoOperation = ImGuizmo::TRANSLATE;
+	bool	gizmoEnable = false;
 };
